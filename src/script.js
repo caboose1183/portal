@@ -32,15 +32,70 @@ dracoLoader.setDecoderPath('draco/')
 const gltfLoader = new GLTFLoader()
 gltfLoader.setDRACOLoader(dracoLoader)
 
-/**
- * Object
- */
-const cube = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial()
-)
+/* 
+  Textures
+*/
+const bakedTexture = textureLoader.load('baked.jpg')
 
-scene.add(cube)
+bakedTexture.flipY = false      //to inverse texture for proper fix
+bakedTexture.encoding = THREE.sRGBEncoding
+
+/* 
+  Materials
+*/
+// Baked material
+const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture })
+
+// Pole Light
+const poleLightMaterial = new THREE.MeshBasicMaterial({ color: '#FF7229'})
+
+// Portal Light
+const portalLightMaterial = new THREE.MeshBasicMaterial({ color: '#0029FF'})
+
+
+/* 
+  Model
+*/
+gltfLoader.load(
+  'portal.glb',
+  (gltf) => {
+
+    const bakedMesh = gltf.scene.children.find((child) => {
+      return child.name === 'baked'
+    })
+
+    const poleLight1Mesh = gltf.scene.children.find((child) => {
+      return child.name === 'poleLight1'
+    })
+
+    const poleLight2Mesh = gltf.scene.children.find((child) => {
+      return child.name === 'poleLight2'
+    })
+
+    const poleLight3Mesh = gltf.scene.children.find((child) => {
+      return child.name === 'poleLight3'
+    })
+
+    const poleLight4Mesh = gltf.scene.children.find((child) => {
+      return child.name === 'poleLight4'
+    })
+
+    const portalLightMesh = gltf.scene.children.find((child) => {
+      return child.name === 'portal'
+    })
+
+    bakedMesh.material = bakedMaterial
+
+    poleLight1Mesh.material = poleLightMaterial
+    poleLight2Mesh.material = poleLightMaterial
+    poleLight3Mesh.material = poleLightMaterial
+    poleLight4Mesh.material = poleLightMaterial
+
+    portalLightMesh.material = portalLightMaterial
+
+    scene.add(gltf.scene)
+  }
+)
 
 /**
  * Sizes
@@ -88,6 +143,8 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+renderer.outputEncoding = THREE.sRGBEncoding
 
 /**
  * Animate
